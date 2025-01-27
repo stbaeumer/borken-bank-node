@@ -54,6 +54,11 @@ const express = require('express');
 
 const bodyParser = require('body-parser');
 
+// Der cookieparser ist für die Verarbeitung der cookies unserer App zuständig.
+// Mit dem cookieparser können wir cookies setzen und auslesen und löschen.
+
+const cookieParser = require('cookie-parser')
+
 // Die Anweisungen werden von oben nach unten abgearbeitet. Der Wert 3000 wird von rechts nach links 
 // zugewiesen an die Konstante namens PORT. Das einfache Gleichheitszeichen lässt sich also übersetzen
 // mit "... wird zugewiesen an ..."
@@ -74,6 +79,13 @@ app.set('view engine', 'ejs')
 // Der Bodyparser wird in der app eingebunden.
 
 app.use(bodyParser.urlencoded({extended: true}))
+
+// Der cookie-pareser wird in die app eingebunden
+// Cookies können verschlüsselt im Browser abgelegt werden. Dadurch kann ein im Browser gespeichertes Kennwort nicht mehr
+// ausgelesen werden. Nur unsere App kann den verschlüsselten cookie verwenden. Dazu wird das secret geheim "genutzet"
+
+app.use(cookieParser())
+
 
 // Die app.get wird abgearbeitet, sobald die Index-Seite angesurft wird.
 app.get('/', (req, res) => {
@@ -334,12 +346,22 @@ app.post('/login', (req, res) => {
 
 	// Die Kontrollstruktur prüft auf die Korrektheit der Zugangsdaten,
 	if(kunde.Benutzername == benutzername && kunde.Kennwort == kennwort){
+	
 		console.log("Die Zugangsdaten wurden korrekt eingegeben.")
 		meldung = "Die Zugangsdaten wurden korrekt eingegeben";
 		
 		// Die Eigenschaft IstEingeloogt wird auf true gesetzt.
 		kunde.IstEingeloggt = true;
 		console.log("kunde.IstEingeloggt: " + kunde.IstEingeloggt)
+
+		// Ein cookie wird gesetzt
+		res.cookie('name', 'John Doe', { maxAge: 900000, httpOnly: true });
+
+
+		res.clearCookie('name')
+
+
+
 
 		// Wenn die Eingangebdaten korrekt sind, dann wird die index-Seite gerendert.
 		res.render('index.ejs',{
