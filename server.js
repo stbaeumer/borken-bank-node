@@ -319,9 +319,11 @@ app.get('/login', (req, res) => {
 // Die app.post wird abgearbeitet, wenn das Formular auf der Seite abgesendet wird.
 app.post('/login', (req, res) => {
 	
+	// Der Benutzername wird vom Browser an den Server übergeben.
 	let benutzername = req.body.IdKunde;
 	console.log("login: Benutzername: " + benutzername)
 
+	// Das Kennwort wird vom Browser an den Server übergeben
 	let kennwort = req.body.Kennwort;
 	console.log("login: Kennwort: " + kennwort)
 
@@ -334,6 +336,8 @@ app.post('/login', (req, res) => {
 	if(kunde.Benutzername == benutzername && kunde.Kennwort == kennwort){
 		console.log("Die Zugangsdaten wurden korrekt eingegeben.")
 		meldung = "Die Zugangsdaten wurden korrekt eingegeben";
+		
+		// Die Eigenschaft IstEingeloogt wird auf true gesetzt.
 		kunde.IstEingeloggt = true;
 		console.log("kunde.IstEingeloggt: " + kunde.IstEingeloggt)
 
