@@ -78,7 +78,16 @@ const bodyParser = require('body-parser');
 
 const cookieParser = require('cookie-parser')
 
+// Die Bibliothek email-validator prüft emails auf syntaktische Korrektheit.
+// Die Anforderungen an gültige Mails sind exakt festgelegt im RFC 5322. 
 
+const validator = require("email-validator");
+
+// Die Funktion validate wird auf das validator-Objekt aufgerufen.
+// Als Parameter wird eine Mail-Adresse an die Funktion übergeben.
+// Der Rückgabewert der Funktion ist true oder false.
+
+validator.validate("test@email.com"); // true
 
 // Die Anweisungen werden von oben nach unten abgearbeitet. Der Wert 3000 wird von rechts nach links 
 // zugewiesen an die Konstante namens PORT. Das einfache Gleichheitszeichen lässt sich also übersetzen
@@ -197,11 +206,52 @@ app.get('/kontenuebersicht', (req, res) => {
 
 app.get('/profil', (req, res) => {
 	
-
 	if(kunde.IstEingeloggt){
 
 		// Wenn die Zugangsdaten korrekt sind, dann wird die angesurfte Seite gerendert.
-		res.render('profil.ejs',{});
+		res.render('profil.ejs',{
+			Meldung: "",
+			Email: kunde.Mail
+		});
+
+	}else{
+		
+		// Wenn die Zugangsdaten nicht korrekt sind, dann wird die login-Seite gerendert.
+		res.render('login.ejs',{
+			Meldung: "Melden Sie sich zuerst an."
+		});
+	}
+});
+
+app.post('/profil', (req, res) => {
+	
+	var meldung = "";
+
+	if(kunde.IstEingeloggt){
+
+		// Der Wert von Email wird vom Browser entgegengenommen, sobald der Kunde
+		// sein Profil ändern will.
+
+		let email = req.body.Email;
+		
+		// Die übergebene Adresse wird in die Validate-Funktion übergeben und geprüft
+
+		if(validator.validate(email)){
+
+			console.log("Gültige EMail.")
+			meldung = "EMail-adresse gültig";
+			kunde.Mail = email;
+
+		}else{
+			console.log("Ungültige EMail.")
+			meldung = "EMail-adresse ungültig";
+		}
+		
+		// Die profil-Seite wird gerendert.
+		res.render('profil.ejs',{
+			Meldung: meldung,
+			Email: ""
+		});
 
 	}else{
 		

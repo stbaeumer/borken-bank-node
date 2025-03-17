@@ -22,6 +22,13 @@
     </header>
     <main>
         <h1>Mein Profil</h1>
+
+        <form method="post">            
+            <label>Mail-Adresse</label></br>
+            <input type="text" name="Email" value=<%= Email %>>
+            <button type="submit" formaction="/profil">Mail-Adresse ändern</button>
+        </form>                
+        <p><%= Meldung %></p>
     </main>
 
     <footer>
