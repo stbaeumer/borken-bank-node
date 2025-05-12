@@ -1,3 +1,67 @@
+const sqlite3 = require('sqlite3').verbose(); // Importiert das sqlite3-Modul
+
+// Neue SQLite-Datenbankverbindung erstellen (Datei: bank.db)
+const db = new sqlite3.Database('./bank.db', (err) => {
+    if (err) {
+        console.error('Fehler beim Öffnen der Datenbank:', err.message);
+    } else {
+        console.log('Verbindung zur SQLite-Datenbank hergestellt.');
+    }
+});
+
+// Tabelle "Kunde" anlegen, falls sie noch nicht existiert
+// Tabellen werden angelegt mt dem Befehl CREATE TABLE
+// IF NOT EXISTS sorgt dafür, dass die Tabelle nur einmal angelegt wird.
+// PRIMARY KEY ist der Primärschlüssel der Tabelle. Der Primärschlüssel ist dasjenige
+// Attribut, das den Datensatz eindeutig identifiziert.
+// AUTOINCREMENT sorgt dafür, dass der Primärschlüssel automatisch hochgezählt wird.
+// Für jedes Attribut muss der Datentyp angegeben werden.
+// TEXT ist ein Datentyp, der eine Zeichenkette speichert.
+// INTEGER ist ein Datentyp, der eine ganze Zahl speichert.
+// NOT NULL sorgt dafür, dass das Attribut nicht leer sein darf.
+
+db.serialize(() => {
+    db.run(`
+        CREATE TABLE IF NOT EXISTS Kunde (
+            KundenNr INTEGER PRIMARY KEY AUTOINCREMENT,
+            Nachname TEXT NOT NULL,
+            Vorname TEXT NOT NULL,
+            Wohnort TEXT,
+            PLZ TEXT,
+            Strasse TEXT,
+            Kennwort TEXT NOT NULL,
+            Benutzername TEXT NOT NULL
+        )
+    `);
+
+    // Beispielkunden einfügen (nur wenn Tabelle leer ist)
+	// Mit INSERT INTO wird ein Datensatz in die Tabelle eingefügt.
+	// VALUES gibt die Werte an, die in die Tabelle eingefügt werden.
+    db.get("SELECT COUNT(*) AS count FROM Kunde", (err, row) => {
+        if (row.count === 0) {
+            db.run(`
+                INSERT INTO Kunde (Nachname, Vorname, Wohnort, PLZ, Strasse, Kennwort, Benutzername)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            `, ["Muster", "Max", "Musterstadt", "12345", "Musterstraße 1", "passwort123", "maxmuster"]);
+            console.log("Beispielkunde wurde angelegt.");
+        }
+    });
+});
+
+// Alle Kunden aus der Tabelle "Kunde" auf der Konsole ausgeben
+db.all("SELECT * FROM Kunde", (err, rows) => {
+    if (err) {
+        console.error("Fehler beim Auslesen der Kunden:", err.message);
+    } else {
+        console.log("Alle Kunden in der Datenbank:");
+        rows.forEach((row) => {
+            console.log(row);
+        });
+    }
+});
+
+
+
 // Klassendefinition des Kunden
 class Kunde{
 	constructor(){
@@ -188,12 +252,47 @@ app.get('/hilfe', (req, res) => {
 	}
 });
 
+app.post('/kontenuebersicht', (req, res) => {
+	
+	if(kunde.IstEingeloggt){
+
+		let kontonummer = req.body.Kontonummer;
+		console.log("kontonummer: " + kontonummer)
+
+		let bankleitzahl = "40154530"
+
+		let laenderkennung = "DE"
+		
+		let pruefziffer = IBANValidator.getCheckDigit(laenderkennung, bankleitzahl, kontonummer);
+		
+		let iban = laenderkennung + bankleitzahl + kontonummer;
+
+
+
+		// Wenn die Zugangsdaten korrekt sind, dann wird die angesurfte Seite gerendert.
+		res.render('kontenuebersicht.ejs',{
+			Kontonummer: "",
+			Meldung: ""
+		});
+
+	}else{
+		
+		// Wenn die Zugangsdaten nicht korrekt sind, dann wird die login-Seite gerendert.
+		res.render('login.ejs',{
+			Meldung: "Melden Sie sich zuerst an."
+		});
+	}
+});
+
 app.get('/kontenuebersicht', (req, res) => {
 	
 	if(kunde.IstEingeloggt){
 
 		// Wenn die Zugangsdaten korrekt sind, dann wird die angesurfte Seite gerendert.
-		res.render('kontenuebersicht.ejs',{});
+		res.render('kontenuebersicht.ejs',{
+			Kontonummer: "",
+			Meldung: ""
+		});
 
 	}else{
 		

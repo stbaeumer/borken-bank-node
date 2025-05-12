@@ -22,6 +22,13 @@
     </header>
     <main>
         <H1>Kontenübersicht</H1>
+
+        <form method="post">
+            <label>Gewünschte Kontonummer</label></br>
+            <input type="number" min="0" name="Kontonummer" value=<%= Kontonummer %>></br>
+            <button type="submit" formaction="/kontenuebersicht">Konto anlegen</button>
+        </form>
+        <p><%= Meldung %></p>
     </main>
 
     <footer>
