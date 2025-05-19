@@ -1,13 +1,23 @@
-const sqlite3 = require('sqlite3').verbose(); // Importiert das sqlite3-Modul
+// Das sqlite3-Modul muss im Terminal installiert werden: npm install sqlite3
+// Das sqlite3-Modul importieren
 
-// Neue SQLite-Datenbankverbindung erstellen (Datei: bank.db)
-const db = new sqlite3.Database('./bank.db', (err) => {
-    if (err) {
+const sqlite3 = require('sqlite3').verbose(); 
+
+// Neue SQLite-Datenbankverbindung erstellen (Datei: datenbank.db)
+
+const db = new sqlite3.Database('./datenbank.db', (err) => {
+    
+	// Wenn err ungleich null ist, dann wird die 
+	// Fehlermeldung auf der Konsole ausgegeben.
+	// Wenn err gleich null ist, dann wird die
+	// Erfolgsmeldung auf der Konsole ausgegeben.	
+	if (err) {
         console.error('Fehler beim Öffnen der Datenbank:', err.message);
     } else {
         console.log('Verbindung zur SQLite-Datenbank hergestellt.');
     }
 });
+
 
 // Tabelle "Kunde" anlegen, falls sie noch nicht existiert
 // Tabellen werden angelegt mt dem Befehl CREATE TABLE
@@ -34,11 +44,13 @@ db.serialize(() => {
         )
     `);
 
-    // Beispielkunden einfügen (nur wenn Tabelle leer ist)
-	// Mit INSERT INTO wird ein Datensatz in die Tabelle eingefügt.
-	// VALUES gibt die Werte an, die in die Tabelle eingefügt werden.
+    // Suche alle Kunden in der Tabelle "Kunde"
     db.get("SELECT COUNT(*) AS count FROM Kunde", (err, row) => {
-        if (row.count === 0) {
+        
+		// Wenn keine einzige Zeile gefunden wurde, ...
+		if (row.count === 0) {
+
+			// ... dann wird ein Beispielkunde angelegt.
             db.run(`
                 INSERT INTO Kunde (Nachname, Vorname, Wohnort, PLZ, Strasse, Kennwort, Benutzername)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
