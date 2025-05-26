@@ -72,8 +72,6 @@ db.all("SELECT * FROM Kunde", (err, rows) => {
     }
 });
 
-
-
 // Klassendefinition des Kunden
 class Kunde{
 	constructor(){
@@ -116,7 +114,6 @@ kundenberater.Nachname = "Pass"
 kundenberater.Vorname = "Hildegard"
 kundenberater.Telefonnummer = "012345 67890"
 kundenberater.Mail = "h.pass@borken-bank.de"
-
 kundenberater.Bild = "pass.jpg"
 
 'use strict';
@@ -149,8 +146,6 @@ const bodyParser = require('body-parser');
 //    seine Kundendaten vom Browser an den Server übergeben. Der Server weiß dadurch, 
 //    mit welchem Kunden er es zu tun hat. So ermöglichen wir, dass mehrere Kunden gleichzeitig
 //    mit dem Server interagieren können.
-
-
 
 const cookieParser = require('cookie-parser')
 
@@ -192,12 +187,9 @@ app.use(bodyParser.urlencoded({extended: true}))
 
 app.use(cookieParser())
 
-
 // Geheimer Schlüssel für signierte Cookies
 const secretKey = 'mein_geheimer_schluessel';
 //app.use(cookieParser(secretKey));
-
-
 
 // Die app.get wird abgearbeitet, sobald die Index-Seite angesurft wird.
 app.get('/', (req, res) => {
@@ -278,7 +270,6 @@ app.post('/kontenuebersicht', (req, res) => {
 		let pruefziffer = IBANValidator.getCheckDigit(laenderkennung, bankleitzahl, kontonummer);
 		
 		let iban = laenderkennung + bankleitzahl + kontonummer;
-
 
 
 		// Wenn die Zugangsdaten korrekt sind, dann wird die angesurfte Seite gerendert.
@@ -531,8 +522,55 @@ app.post('/login', (req, res) => {
 	// Kennwort eingeben hat.
 
 	let meldung = "";
+	
+	/*
 
-	// Die Kontrollstruktur prüft auf die Korrektheit der Zugangsdaten,
+	// Die Datenbank wird abgefragt, ob es einen Kunden mit dem angegebenen Benutzernamen gibt.
+	// Mit SELECT wird eine Abfrage an die Datenbank geschickt.
+	// Der Wert von benutzername wird an die Stelle des ? an die Abfrage übergeben.
+	// * steht für alle Spalten der Tabelle.
+	// Die Zeilen werden mit WHERE gefiltert.
+	db.get("SELECT * FROM Kunde WHERE Benutzername = ?", [benutzername], (err, row) => {
+		
+		// Wenn ein Fehler aufgetreten ist, wird eine Fehlermeldung ausgegeben.
+		// Wenn err ungleich null (bzw. leer) ist, dann ist ein Fehler aufgetreten.
+		if (err) {
+
+			// err ist nicht einfach ein String, sondern ein Objekt.
+			// Das Objekt hat eine Eigenschaft namens message, die die Fehlermeldung enthält.
+			console.error("Fehler beim Auslesen des Kunden:", err.message);
+			meldung = "Fehler beim Auslesen des Kunden.";
+			res.render('login.ejs', { Meldung: meldung });
+			return;
+		}
+
+		// Wenn kein Kunde mit dem angegebenen Benutzernamen gefunden wurde, 
+		// wird eine Fehlermeldung ausgegeben.
+		if (!row) {
+			console.log("Kein Kunde mit diesem Benutzernamen gefunden.");
+			meldung = "Kein Kunde mit diesem Benutzernamen gefunden.";
+			res.render('login.ejs', { Meldung: meldung });
+			return;
+		}
+
+		// Das Kundenobjekt wird mit den Daten aus der Datenbank gefüllt.
+		kunde.Nachname = row.Nachname;
+		kunde.Vorname = row.Vorname;
+		kunde.Wohnort = row.Wohnort;
+		kunde.PLZ = row.PLZ;
+		kunde.Strasse = row.Strasse;
+		kunde.Kennwort = row.Kennwort;
+		kunde.Benutzername = row.Benutzername;
+		
+		console.log("Dieser Kunde wurde aus der Datenbank initialisiert: ", kunde);
+
+	});
+
+	*/
+	
+	// Die Kontrollstruktur prüft auf die Korrektheit der Zugangsdaten.
+	// Falls der Kunde nicht gefunden wurde, dann wird die Funktion bereits weiter oben
+	// mit einem return verlassen.
 	if(kunde.Benutzername == benutzername && kunde.Kennwort == kennwort){
 	
 		console.log("Die Zugangsdaten wurden korrekt eingegeben.")
